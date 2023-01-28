@@ -1,3 +1,17 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using Reports.Controllers;
+using Reports.Models.Workers;
+using Reports.UI;
 
-Console.WriteLine("Hello, World!");
+namespace Reports;
+
+public static class Program
+{
+    public static void Main()
+    {
+        var dbWorker = new DbWorker();
+        var reportWorker = new ReportWorker(dbWorker);
+        var menu = new CommonMenu(reportWorker);
+        
+        menu.Processing();
+    }
+}
