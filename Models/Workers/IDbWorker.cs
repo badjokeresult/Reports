@@ -9,4 +9,5 @@ public interface IDbWorker
     public Task<IEnumerable<Report>> GetAllAsync();
     public Task ChangeAsync(int id, Report newReport);
     public Task DeleteAsync(int id);
+    public Task<int?> GetLastRowId();
 }

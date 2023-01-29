@@ -29,7 +29,7 @@ public class DbWorker : IDbWorker
     {
         await using var db = new AppDbContext();
 
-        var reports = db.Reports.AsEnumerable();
+        var reports = await db.Reports.ToListAsync();
 
         return reports;
     }
@@ -58,5 +58,14 @@ public class DbWorker : IDbWorker
             db.Reports.Remove(report);
 
         await db.SaveChangesAsync();
+    }
+
+    public async Task<int?> GetLastRowId()
+    {
+        await using var db = new AppDbContext();
+
+        var report = await db.Reports.LastOrDefaultAsync();
+
+        return report?.Id;
     }
 }
