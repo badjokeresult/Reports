@@ -32,7 +32,7 @@ public class AdvancedMenu : MenuBase
 
             for (var i = 0; i < patterns.Length; i++)
             {
-                if (patterns[i].Matches(command).Count == command.Length)
+                if (patterns[i].Matches(command.Trim()).Count == command.Trim().Length)
                 {
                     switch (i)
                     {
