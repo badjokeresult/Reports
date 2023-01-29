@@ -16,7 +16,7 @@ public class ReportWorker : IReportWorker
         _dbWorker = dbWorker;
     }
     
-    public void CreateReport()
+    public void CreateReport(bool isExisting = false)
     {
         var cancellationTokenSource = new CancellationTokenSource();
         var cancellationToken = cancellationTokenSource.Token;
@@ -43,7 +43,10 @@ public class ReportWorker : IReportWorker
             waitingForCancellation.Wait();
         }
 
-        var report = new Report(_reportId++, creationTime, creationTime != null);
+        var id = isExisting
+            ? _reportId++
+            : _reportId;
+        var report = new Report(id, creationTime, creationTime != null);
         _dbWorker.CreateAsync(report);
     }
 
@@ -69,7 +72,7 @@ public class ReportWorker : IReportWorker
     private Task WaitingForCancellation(int timeToBuild)
     {
         Console.WriteLine("Press Esc to cancel the report building");
-        var task = new Task(() => // TODO: эта штука будет просить до 10 нажатий
+        var task = new Task(() => // TODO: task will ask to press button for each iteration
         {
             for (var i = 0; i < timeToBuild; i++)
             {
@@ -82,7 +85,7 @@ public class ReportWorker : IReportWorker
 
         return task;
     }
-
+    
     public string GetReport(int id)
     {
         var report = _dbWorker.GetAsync(id).Result;
@@ -100,10 +103,7 @@ public class ReportWorker : IReportWorker
             yield return report.ToString();
     }
 
-    public async Task ChangeReport(int id)
-    {
-        throw new NotImplementedException();
-    }
+    public void ChangeReport(int id) => CreateReport(isExisting: true);
 
     public void DeleteReport(int id)
     {
