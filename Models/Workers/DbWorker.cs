@@ -64,7 +64,9 @@ public class DbWorker : IDbWorker
     {
         await using var db = new AppDbContext();
 
-        var report = await db.Reports.LastOrDefaultAsync();
+        var report = await db.Reports
+            .OrderByDescending(r => r.Id)
+            .FirstOrDefaultAsync();
 
         return report?.Id;
     }
