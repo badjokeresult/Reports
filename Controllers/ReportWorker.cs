@@ -8,15 +8,21 @@ namespace Reports.Controllers;
 public class ReportWorker : IReportWorker
 {
     private readonly IDbWorker _dbWorker;
-
-    private static int _reportId = 1;
+    private int _reportId;
 
     public ReportWorker(IDbWorker dbWorker)
     {
         _dbWorker = dbWorker;
+        _reportId = _dbWorker.GetLastRowId().Result ?? 1;
     }
     
-    public void CreateReport(bool isExisting = false)
+    public void CreateReport()
+    {
+        var report = BuildReport(false);
+        _dbWorker.CreateAsync(report);
+    }
+
+    private Report BuildReport(bool isExisting)
     {
         var cancellationTokenSource = new CancellationTokenSource();
         var cancellationToken = cancellationTokenSource.Token;
@@ -25,32 +31,25 @@ public class ReportWorker : IReportWorker
         var timeToBuild = random.Next(1, 10);
 
         Stopwatch timer = new Stopwatch();
-        var buildingReportTask = BuildReport(timeToBuild, cancellationToken);
+        var buildingReportTask = BuildingReportInfo(timeToBuild, cancellationToken);
         var waitingForCancellation = WaitingForCancellation(timeToBuild, cancellationTokenSource, buildingReportTask);
         
         timer.Start();
         buildingReportTask.Start();
         waitingForCancellation.Start();
 
-        TimeSpan? creationTime = null;
-        if (buildingReportTask.IsCompleted && waitingForCancellation.IsCompleted)
-        {
-            creationTime = timer.Elapsed;
-        }
-        else
-        {
-            buildingReportTask.Wait();
-            waitingForCancellation.Wait();
-        }
+        buildingReportTask.Wait();
+        waitingForCancellation.Wait();
+        
+        TimeSpan? creationTime = timer.Elapsed;
 
         var id = isExisting
-            ? _reportId++
-            : _reportId;
-        var report = new Report(id, creationTime, creationTime != null);
-        _dbWorker.CreateAsync(report);
+            ? _reportId
+            : _reportId++;
+        return new Report(id, creationTime, !cancellationToken.IsCancellationRequested);
     }
 
-    private Task BuildReport(int timeToBuild, CancellationToken token)
+    private Task BuildingReportInfo(int timeToBuild, CancellationToken token)
     {
         Console.WriteLine("The report building is begun...");
         var task = new Task(() => 
@@ -71,7 +70,7 @@ public class ReportWorker : IReportWorker
 
     private Task WaitingForCancellation(int timeToBuild, CancellationTokenSource tokenSource, Task mainTask)
     {
-        Console.WriteLine("Press Esc to cancel the report building");
+        Console.WriteLine("Press Backspace to cancel the report building");
         var task = new Task(() =>
         {
             for (var i = 0; i < timeToBuild; i++)
@@ -80,7 +79,7 @@ public class ReportWorker : IReportWorker
                     return;
                 
                 var buttonClick = Console.ReadKey();
-                if (buttonClick.Key == ConsoleKey.Escape)
+                if (buttonClick.Key == ConsoleKey.Backspace)
                 {
                     tokenSource.Cancel();
                     return;
@@ -110,7 +109,11 @@ public class ReportWorker : IReportWorker
             yield return report.ToString();
     }
 
-    public void ChangeReport(int id) => CreateReport(isExisting: true);
+    public void ChangeReport(int id)
+    {
+        var report = BuildReport(true);
+        _dbWorker.ChangeAsync(id, report);
+    }
 
     public void DeleteReport(int id)
     {

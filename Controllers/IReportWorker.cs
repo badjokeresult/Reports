@@ -2,7 +2,7 @@
 
 public interface IReportWorker
 {
-    public void CreateReport(bool isExisting = false);
+    public void CreateReport();
     public string GetReport(int id);
     public IEnumerable<string> GetReports();
     public void ChangeReport(int id);
