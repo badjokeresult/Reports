@@ -13,7 +13,7 @@ public class ReportWorker : IReportWorker
     public ReportWorker(IDbWorker dbWorker)
     {
         _dbWorker = dbWorker;
-        _reportId = _dbWorker.GetLastRowId().Result ?? 1;
+        _reportId = _dbWorker.GetLastRowId().Result + 1 ?? 1;
     }
     
     public void CreateReport()
