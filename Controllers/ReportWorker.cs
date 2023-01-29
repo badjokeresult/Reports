@@ -26,7 +26,7 @@ public class ReportWorker : IReportWorker
 
         Stopwatch timer = new Stopwatch();
         var buildingReportTask = BuildReport(timeToBuild, cancellationToken);
-        var waitingForCancellation = WaitingForCancellation(timeToBuild);
+        var waitingForCancellation = WaitingForCancellation(timeToBuild, cancellationTokenSource, buildingReportTask);
         
         timer.Start();
         buildingReportTask.Start();
@@ -69,16 +69,23 @@ public class ReportWorker : IReportWorker
         return task;
     }
 
-    private Task WaitingForCancellation(int timeToBuild)
+    private Task WaitingForCancellation(int timeToBuild, CancellationTokenSource tokenSource, Task mainTask)
     {
         Console.WriteLine("Press Esc to cancel the report building");
         var task = new Task(() => // TODO: task will ask to press button for each iteration
         {
             for (var i = 0; i < timeToBuild; i++)
             {
+                if (mainTask.IsCompletedSuccessfully)
+                    return;
+                
                 var buttonClick = Console.ReadKey();
                 if (buttonClick.Key == ConsoleKey.Escape)
+                {
+                    tokenSource.Cancel();
                     return;
+                }
+
                 Thread.Sleep(1000);
             }
         });
