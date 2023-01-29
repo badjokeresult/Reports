@@ -18,9 +18,10 @@ public abstract class MenuBase
         _reportWorker.CreateReport();
     }
 
-    protected void GetReport()
+    protected void GetReport(int id = -1)
     {
-        var id = GetID();
+        if (id == -1)
+            id = GetID();
         var reportInfo = _reportWorker.GetReport(id);
         Console.WriteLine(reportInfo);
     }
@@ -54,15 +55,17 @@ public abstract class MenuBase
             Console.WriteLine(info);
     }
 
-    protected void ChangeReport()
+    protected void ChangeReport(int id = -1)
     {
-        var id = GetID();
+        if (id == -1)
+            id = GetID();
         _reportWorker.ChangeReport(id);
     }
 
-    protected void DeleteReport()
+    protected void DeleteReport(int id = -1)
     {
-        var id = GetID();
+        if (id == -1)
+            id = GetID();
         _reportWorker.DeleteReport(id);
     }
 }

@@ -30,9 +30,11 @@ public class AdvancedMenu : MenuBase
             if (command == null)
                 continue;
 
+            var parts = command.Split(' ');
+            int num;
             for (var i = 0; i < patterns.Length; i++)
             {
-                if (patterns[i].Matches(command.Trim()).Count == command.Trim().Length)
+                if (Regex.IsMatch(command.Trim(), patterns[i].ToString()))
                 {
                     switch (i)
                     {
@@ -40,16 +42,19 @@ public class AdvancedMenu : MenuBase
                             CreateReport();
                             break;
                         case 1:
-                            GetReport();
+                            num = int.Parse(parts[1]);
+                            GetReport(num);
                             break;
                         case 2: 
                         case 3:
                             GetReports();
                             break;
                         case 4:
+                            num = int.Parse(parts[1]);
                             ChangeReport();
                             break;
                         case 5:
+                            num = int.Parse(parts[1]);
                             DeleteReport();
                             break;
                         case 6:
