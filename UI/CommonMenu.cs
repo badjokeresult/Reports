@@ -2,11 +2,9 @@
 
 namespace Reports.UI;
 
-public class CommonMenu : IMenu
+public class CommonMenu : MenuBase
 {
-    private readonly IReportWorker _reportWorker;
-
-    private static readonly string[] menuOptions =
+    private static readonly string[] MenuOptions =
     {
         "1. Create new report",
         "2. Get a report by ID",
@@ -17,11 +15,16 @@ public class CommonMenu : IMenu
     };
 
     public CommonMenu(IReportWorker reportWorker)
+        : base(reportWorker)
+    {}
+
+    private static void PrintMenuOptions()
     {
-        _reportWorker = reportWorker;
+        foreach (var option in MenuOptions)
+            Console.WriteLine(option);
     }
-    
-    public void Processing()
+
+    public override void Processing()
     {
         while (true)
         {
@@ -66,64 +69,5 @@ public class CommonMenu : IMenu
                     break;
             }
         }
-    }
-
-    private static void PrintMenuOptions()
-    {
-        foreach (var option in menuOptions)
-            Console.WriteLine(option);
-    }
-
-    public void CreateReport()
-    {
-        _reportWorker.CreateReport();
-    }
-
-    public void GetReport()
-    {
-        var id = GetID();
-        var reportInfo = _reportWorker.GetReport(id);
-        Console.WriteLine(reportInfo);
-    }
-
-    private int GetID()
-    {
-        while (true)
-        {
-            int id = -1;
-            try
-            {
-                Console.Write("Enter the report's ID: ");
-                id = int.Parse(Console.ReadLine());
-            }
-            catch (ArgumentNullException)
-            {
-                Console.WriteLine("Please enter the value");
-            }
-            catch (FormatException)
-            {
-                Console.WriteLine("Entered value is not an integer number");
-            }
-            return id;
-        }
-    }
-
-    public void GetReports()
-    {
-        var reportsInfos = _reportWorker.GetReports();
-        foreach (var info in reportsInfos)
-            Console.WriteLine(info);
-    }
-
-    public void ChangeReport()
-    {
-        var id = GetID();
-        _reportWorker.ChangeReport(id);
-    }
-
-    public void DeleteReport()
-    {
-        var id = GetID();
-        _reportWorker.DeleteReport(id);
     }
 }
