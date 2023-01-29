@@ -72,7 +72,7 @@ public class ReportWorker : IReportWorker
     private Task WaitingForCancellation(int timeToBuild, CancellationTokenSource tokenSource, Task mainTask)
     {
         Console.WriteLine("Press Esc to cancel the report building");
-        var task = new Task(() => // TODO: task will ask to press button for each iteration
+        var task = new Task(() =>
         {
             for (var i = 0; i < timeToBuild; i++)
             {
